@@ -19,6 +19,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import SupportIcon from '@mui/icons-material/Support';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ThemeRegistry from '@/components/theme-registry/theme.registry';
+import AppHeader from '@/components/header/app.header';
 
 export const metadata = {
   title: 'Next.js App Router + Material UI v5',
@@ -44,7 +45,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <ThemeRegistry>
-            {children}
+          <AppHeader />
+          {children}
         </ThemeRegistry>
       </body>
     </html>
