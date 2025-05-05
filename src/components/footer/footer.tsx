@@ -15,8 +15,7 @@ const Footer = () => {
         }}>
         <Container maxWidth="lg" sx={{ border: 'none', gap: 10, display: 'flex' }}>
           <AudioPlayer
-            autoPlay
-            src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/tracks/hoidanit.mp3`}
             onPlay={e => console.log("onPlay")}
             style={{
               boxShadow: 'unset',
