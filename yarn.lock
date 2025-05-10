@@ -508,6 +508,11 @@
     "@typescript-eslint/types" "6.5.0"
     eslint-visitor-keys "^3.4.1"
 
+"@wavesurfer/react@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.npmjs.org/@wavesurfer/react/-/react-1.0.11.tgz"
+  integrity sha512-DRpaA3MRTKy4Jby12xvoHASa+w31FZtxaqanXcJjfqNqfamkKi8VJfRnz+Uub9LkpdgoAc3g5SuZF75lEcGgzQ==
+
 acorn-jsx@^5.3.2:
   version "5.3.2"
   resolved "https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-5.3.2.tgz"
@@ -2532,6 +2537,11 @@ watchpack@2.4.0:
   dependencies:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
+
+wavesurfer.js@7.3.1:
+  version "7.3.1"
+  resolved "https://registry.npmjs.org/wavesurfer.js/-/wavesurfer.js-7.3.1.tgz"
+  integrity sha512-mjnWcAsOrXq8hIfAJv/OwQWnNrpbZYbQ6rKKfFdVpuucYipi4pG57jY9i+jL4tWLfz262BX4EOxZT2PC3uY2xA==
 
 which-boxed-primitive@^1.0.2:
   version "1.0.2"
