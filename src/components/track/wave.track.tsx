@@ -1,10 +1,12 @@
 'use client'
-import { Container } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { useWavesurfer } from '@wavesurfer/react';
 import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { WaveSurferOptions } from "wavesurfer.js";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import WaveSurfer, { WaveSurferOptions } from "wavesurfer.js";
 import './wave.scss';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 
 const WaveTrack = () => {
   const searchParams = useSearchParams();
@@ -13,6 +15,7 @@ const WaveTrack = () => {
   const [time, setTime] = useState("0:00");
   const [duration, setDuration] = useState("0:00");
   const hover = useRef<HTMLDivElement | null>(null);
+  const wavesurferRef = useRef<WaveSurfer | null>(null);
 
   const options = useMemo((): Omit<WaveSurferOptions, 'container'> => {
     let gradient, progressGradient;
@@ -42,8 +45,8 @@ const WaveTrack = () => {
     return {
       waveColor: gradient,
       progressColor: progressGradient,
-      height: 150,
-      barWidth: 2,
+      height: 100,
+      barWidth: 3,
       url: `/api?audio=${fileName}`
     }
 
@@ -55,7 +58,74 @@ const WaveTrack = () => {
     const paddedSeconds = `0${secondsRemainder}`.slice(-2)
     return `${minutes}:${paddedSeconds}`
   }
-  const { wavesurfer, isPlaying } = useWavesurfer({ container: containerRef, ...options });
+
+  const renderFunction = useCallback(
+    (peaks: (Float32Array | number[])[], ctx: CanvasRenderingContext2D) => {
+      const { width, height } = ctx.canvas;
+      const barWidth = 2;
+      const gap = 1;
+      const step = barWidth + gap;
+      const totalBars = Math.floor(width / step);
+      const data = peaks[0];
+      const scale = data.length / totalBars;
+
+      // Split heights
+      const topPartHeight = height * 0.7;
+      const bottomPartHeight = height * 0.3;
+
+      const currentTime = wavesurferRef.current?.getCurrentTime?.() ?? 0;
+      const duration = wavesurferRef.current?.getDuration?.() ?? 1;
+      const playedRatio = currentTime / duration;
+
+      // Clear canvas (transparent background)
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < totalBars; i++) {
+        const index = Math.floor(i * scale);
+        const value = Math.abs(data[index] ?? 0);
+
+        // Bar heights for top and bottom
+        const barHeightTop = value * topPartHeight;
+        const barHeightBottom = value * bottomPartHeight;
+
+        const x = i * step;
+        const yTop = topPartHeight - barHeightTop;
+        const yBottom = topPartHeight;
+
+        // Played or unplayed color for wave bars only
+        ctx.fillStyle = i / totalBars < playedRatio ? "#ff8800" : "#b0b0b0";
+
+        // Top bar (70%)
+        ctx.fillRect(x, yTop, barWidth, barHeightTop);
+
+        // Bottom mirrored bar (30%)
+        ctx.globalAlpha = 0.7;
+        ctx.fillRect(x, yBottom, barWidth, barHeightBottom);
+        ctx.globalAlpha = 1.0;
+      }
+
+      // Baseline
+      ctx.fillStyle = "#00000055";
+      ctx.fillRect(0, topPartHeight - 0.5, width, 1);
+    },
+    []
+  )
+
+  const { wavesurfer, isPlaying } = useWavesurfer({
+    container: containerRef,
+    ...options,
+    renderFunction,
+  });
+
+  useEffect(() => {
+    if (wavesurfer) {
+      wavesurferRef.current = wavesurfer
+    }
+  }, [wavesurfer])
+
+  wavesurfer?.once('interaction', () => {
+    wavesurfer.play();
+  })
 
   if (containerRef.current) {
     containerRef.current.addEventListener('pointermove', (e) => {
@@ -76,14 +146,103 @@ const WaveTrack = () => {
 
   return (
     <Container>
-      <div ref={containerRef} id="waveform">
-        <div className="time">{time}</div>
-        <div className="duration">{duration}</div>
-        <div ref={hover} className="hover"></div>
-      </div>
-      <button onClick={onPlayPause} style={{ minWidth: '5em' }}>
-        {isPlaying ? 'Pause' : 'Play'}
-      </button>
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: '384px',
+          marginLeft: '16px',
+          marginRight: '16px',
+          background: 'linear-gradient(135deg, rgb(106, 112, 67) 0%, rgb(11, 15, 20) 100%)',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '32px',
+            right: '32px',
+
+          }}>
+          <img style={{ height: '320px', width: '320px' }}
+            src="https://anhdep.edu.vn/upload/2024/08/tai-ngay-avatar-anime-chill-lofi-8211-top-50-hinh-anh-hot-nhat-53.webp" alt="" />
+        </Box>
+        <Box sx={{
+          position: 'absolute',
+          top: '32px',
+          left: '32px',
+          display: 'flex',
+        }}>
+          <Box
+            onClick={onPlayPause}
+            sx={{
+              borderRadius: '50%',
+              background: '#F50',
+              height: '50px',
+              width: '50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            {isPlaying ?
+              <PauseIcon sx={{ fontSize: 30, color: 'white' }} />
+              : <PlayArrowIcon sx={{ fontSize: 30, color: 'white' }} />}
+          </Box>
+          <Box
+            sx={{
+              marginLeft: '15px',
+              alignItems: 'center',
+            }}
+          >
+            <span style={{
+              fontSize: '24px',
+              fontWeight: 600,
+              color: '#fff',
+              background: 'black',
+              width: '100%',
+              padding: '4px 8px',
+              marginBottom: '8px',
+            }}>
+              Lofi Chill Song
+            </span>
+            <br />
+            <span style={{
+              fontSize: '24px',
+              fontWeight: 600,
+              color: '#fff',
+              background: 'black',
+              width: '100%',
+              padding: '4px 8px',
+            }}>
+              Kento
+            </span>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '32px',
+            left: '32px',
+            width: '744px',
+          }}>
+          <Box ref={containerRef} id="waveform">
+            <Box className="time">{time}</Box>
+            <Box className="duration">{duration}</Box>
+            <Box ref={hover} className="hover"></Box>
+            <Box sx={{
+              position: 'absolute',
+              height: '30px',
+              width: '100%',
+              bottom: '0',
+              backdropFilter: 'brightness(0.5)',
+            }}></Box>
+          </Box>
+
+        </Box>
+
+      </Box>
+
     </Container>
   )
 }
