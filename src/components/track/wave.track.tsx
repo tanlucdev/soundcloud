@@ -1,5 +1,5 @@
 'use client'
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Tooltip, Typography } from "@mui/material";
 import { useWavesurfer } from '@wavesurfer/react';
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -14,7 +14,7 @@ const WaveTrack = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [time, setTime] = useState("0:00");
   const [duration, setDuration] = useState("0:00");
-  const hover = useRef<HTMLDivElement | null>(null);
+  const hoverRef = useRef<HTMLDivElement | null>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
 
   const options = useMemo((): Omit<WaveSurferOptions, 'container'> => {
@@ -129,8 +129,8 @@ const WaveTrack = () => {
 
   if (containerRef.current) {
     containerRef.current.addEventListener('pointermove', (e) => {
-      if (hover.current) {
-        hover.current.style.width = `${e.offsetX}px`;
+      if (hoverRef.current) {
+        hoverRef.current.style.width = `${e.offsetX}px`;
       }
     });
   }
@@ -143,6 +143,35 @@ const WaveTrack = () => {
   const onPlayPause = useCallback(() => {
     wavesurfer && wavesurfer.playPause()
   }, [wavesurfer]);
+
+  const arrComments = [
+    {
+      id: 1,
+      avatar: "http://localhost:8000/images/chill1.png",
+      moment: 10,
+      user: "username 1",
+      content: "just a comment1"
+    },
+    {
+      id: 2,
+      avatar: "http://localhost:8000/images/chill1.png",
+      moment: 30,
+      user: "username 2",
+      content: "just a comment3"
+    },
+    {
+      id: 3,
+      avatar: "http://localhost:8000/images/chill1.png",
+      moment: 50,
+      user: "username 3",
+      content: "just a comment3"
+    },
+  ]
+
+  const calLeft = (moment: number) => {
+    const percent = (moment / 199) * 100;
+    return `${percent}%`;
+  }
 
   return (
     <Container>
@@ -229,14 +258,39 @@ const WaveTrack = () => {
           <Box ref={containerRef} id="waveform">
             <Box className="time">{time}</Box>
             <Box className="duration">{duration}</Box>
-            <Box ref={hover} className="hover"></Box>
+            <Box ref={hoverRef} className="hover"></Box>
             <Box sx={{
               position: 'absolute',
               height: '30px',
               width: '100%',
               bottom: '0',
               backdropFilter: 'brightness(0.5)',
-            }}></Box>
+            }} />
+            <Box sx={{ position: 'relative' }}>
+              {arrComments.map((item) => {
+                return (
+                  <Tooltip title={item.content} key={item.id} arrow>
+                    <img
+                      onPointerMove={(e) => {
+                        const hover = hoverRef.current!;
+                        hover.style.width = calLeft(item.moment);
+                      }}
+                      key={item.id}
+                      style={{
+                        height: '20px',
+                        width: '20px',
+                        position: 'absolute',
+                        top: 71,
+                        zIndex: 20,
+                        left: calLeft(item.moment),
+                      }}
+                      src="http://localhost:8000/images/chill1.png" alt=""
+                    />
+                  </Tooltip>
+                )
+
+              })}
+            </Box>
           </Box>
 
         </Box>
