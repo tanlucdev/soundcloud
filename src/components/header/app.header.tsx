@@ -18,6 +18,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { Avatar, Container, Tooltip } from '@mui/material';
 import Link from 'next/link';
+import { useSession, signIn, signOut } from "next-auth/react"
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -66,7 +67,7 @@ export default function AppHeader() {
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const open = Boolean(anchorEl);
-
+  const { data: session } = useSession();
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -203,21 +204,28 @@ export default function AppHeader() {
                   }
                 }}
               >
-                <Link
-                  href="/playlist">Playlist</Link>
-                <Link href="/likes">Likes</Link>
-                <Tooltip title="Account settings">
-                  <IconButton
-                    onClick={handleProfileMenuOpen}
-                    size="small"
-                    sx={{ ml: 2 }}
-                    aria-controls={open ? 'account-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                  >
-                    <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
-                  </IconButton>
-                </Tooltip>
+                {session
+                  ?
+                  <>
+                    <Link
+                      href="/playlist">Playlist</Link>
+                    <Link href="/likes">Likes</Link>
+                    <Tooltip title="Account settings">
+                      <IconButton
+                        onClick={handleProfileMenuOpen}
+                        size="small"
+                        sx={{ ml: 2 }}
+                        aria-controls={open ? 'account-menu' : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={open ? 'true' : undefined}
+                      >
+                        <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+                      </IconButton>
+                    </Tooltip>
+                  </> :
+                  <Link href="/api/auth/signin">Login</Link>
+
+                }
               </Box>
               <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
                 <IconButton
