@@ -6,6 +6,7 @@ import { authOptions } from "./api/auth/[...nextauth]/route";
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
+  console.log("Check session: ", session)
   const chill_playlist = await sendRequest<IBackendRes<ITrackTop[]>>({
     url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/tracks/top`,
     method: 'POST',

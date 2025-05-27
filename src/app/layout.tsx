@@ -22,6 +22,7 @@ import ThemeRegistry from '@/components/theme-registry/theme.registry';
 import AppHeader from '@/components/header/app.header';
 import Footer from '@/components/footer/footer';
 import NextAuthWrapper from '@/lib/next.auth.wrapper';
+import AuthSignIn from '@/components/auth/auth.signin';
 
 export const metadata = {
   title: 'Next.js App Router + Material UI v5',
